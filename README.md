@@ -146,10 +146,10 @@ Choose and enable some indexes. (Look online for popular ones.)
 You are done. Enjoy!
 
 ## Optional steps
-### Auto start of pods and WebUI for executing the scripts (optional)
+### Autostart of pods and management WebUI (optional)
 In the future to run the media stack, just run `./start.sh`.
 
-However, if you want that to happen automatically on start and have a nice webUI for starting/ stopping the stack, run `install-arr-on-deck-manager-service.sh`.
+However, if you want that to happen automatically on start and have a nice webUI for executing these scripts, run `install-arr-on-deck-manager-service.sh`.
 
 ### Deck: Stay always on
 If you want to use the Deck as an always-on media system, it is better to not allow it to sleep. (I know this is mean.)
@@ -201,7 +201,7 @@ In `Settings > Library` you may want to set `Video played threshold` to `95%`. F
 First select an item then scroll all the way down, and then shift click the select button on the last movie. This should select all items. Then mark them as watched.
 
 ### Plex HTPC: Set audio for whole show
-In `Show > Edit Menu (Marker Icon) > Advanced Tab (bottom of)` set the `Preferred Audio Language & Preferred Subtitle Language`.
+In the show's page, go to `Edit Menu (Marker Icon) > Advanced Tab (bottom of)` and set the `Preferred Audio Language & Preferred Subtitle Language`.
 
 ### Podman: Clean up container images
 Run `podman system reset`. After that images have to be re-downloaded, but your data and config will stay.
