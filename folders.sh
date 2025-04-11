@@ -62,8 +62,12 @@ get_conf_or_ask_for() {
     fi
 }
 
+# get the path to this script's directory
+CONTAINER_DIR="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd && echo x)"
 
-CONTAINER_DIR="$HOME/container"
+# to make it work with newlines at the end of the name
+CONTAINER_DIR="${CONTAINER_DIR%x}"
+
 cd $CONTAINER_DIR
 
 USE_VUETORRENT_UI="$(get_conf_or_ask_for "use-vuetorrent-ui.txt" "Enter 'true' if you want to use Vuetorrent UI for a better mobile experience" "false")"
