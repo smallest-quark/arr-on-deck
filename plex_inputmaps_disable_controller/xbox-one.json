@@ -1,0 +1,13 @@
+// The comments above each mapping refer to the naming in the official
+// documentation.
+// See: https://support.xbox.com/en-US/help/hardware-network/controller/xbox-one-wireless-controller
+
+{
+  "name": "Xbox One",
+  // The "Xbox One S Controller" ID is encountered over a Bluetooth connection.
+  // A USB connection may use a different ID.
+  "idmatcher": "Xbox One S Controller",
+  "mapping": {
+
+  }
+}

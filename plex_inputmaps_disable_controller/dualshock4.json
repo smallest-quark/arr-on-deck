@@ -1,0 +1,17 @@
+// The comments above each mapping refer to the naming in the official
+// documentation.
+// See: https://manuals.playstation.net/document/en/ps4/basic/pn_controller.html
+
+{
+  "name": "PlayStation DualShock 4",
+  // Gamepad ID varies based on the connection. Additionally the Bluetooth
+  // device shown in the system dialogs differs from the one received by Plex.
+  // Matching "{any characters}Wireless Controller" is very generic. The
+  // assumption is that there is a single connected gamepad used for HTPC
+  // control.
+  // - USB: "Sony Computer Entertainment Wireless Controller"
+  // - Bluetooth: "Unknown Wireless Controller"
+  "idmatcher": ".*Wireless Controller",
+  "mapping": {
+}
+}
