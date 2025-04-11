@@ -113,7 +113,7 @@ If you chose the Vuetorrent UI during the `setup.sh` go to `Settings > WebUI`:
 1. Set the path to `/vuetorrent`
 
 ## Bazarr
-Enable the languages you want to have as subtitles (`Settings > Languages`).
+Enable the languages you want to have as subtitles in `Settings > Languages`.
 
 ## Prowlarr
 ### Add Indexers
@@ -142,24 +142,15 @@ Choose and enable some indexes. (Look online for popular ones.)
 1. You can choose how much you want to monitor (and thus download).
 1. Click the `authenticate` button.
 
-## Auto start of pods and WebUI for executing the scripts (optional)
+## Done
+You are done. Enjoy!
+
+## Optional steps
+### Auto start of pods and WebUI for executing the scripts (optional)
 In the future to run the media stack, just run `./start.sh`.
 
-However, if you want that to happen automatically on start, run `install-arr-on-deck-manager-service.sh`.
+However, if you want that to happen automatically on start and have a nice webUI for starting/ stopping the stack, run `install-arr-on-deck-manager-service.sh`.
 
-## Done
-You are done. Enjoy.
-
-The following includes explanations, suggestions and more.
-
-## Explanation of Quality and Formats
-"Quality Profiles" allow you to select the quality of a movie or show you want to download. They feature "Custom Formats," which fine-tune your release selection based on specific keywords or patterns in release names.
-
-As a result, they can be used to limit downloads to specific languages. You can also specify that you want downloads to be upgraded when a better version appears.
-
-You can also set a minimum score for a release to be downloaded. Each release is scored, and only those meeting the minimum score are downloaded. A release may receive +2 for 5.1 sound and +1 for being 2160p (total 3). A movie with 2 points would be preferred over one with 1.
-
-## How To / Suggestions
 ### Deck: Stay always on
 If you want to use the Deck as an always-on media system, it is better to not allow it to sleep. (I know this is mean.)
 
@@ -170,10 +161,11 @@ In `Gaming Mode` do the following:
 1. Scroll down to the `Put Deck to sleep` section:
 1. Set `When plugged in, sleep after...` to `Disabled`
 
-### Copy files into the media directories
+## How To
+### Copy existing media into the media directories
 If you copy new files in the `movie` or `show` folder, you may have to run `ensure-permissions.sh` to make sure that the container are allowed to read these files.
 
-### Rename folders (not files)
+### Sonarr and Radarr: Rename folders (not files)
 1. Click on `Movies` / `Series`
 1. Click `Edit Movies` / `Select Series`
 1. Click `Select All` (or whatever you like)
@@ -184,9 +176,10 @@ If you copy new files in the `movie` or `show` folder, you may have to run `ensu
 ### Sonarr: Unmonitor seasons or episodes
 Click the icon next to the Season number to toggle monitoring for all episodes or none. After that, choose the specific episodes you want to monitor.
 
-To manually import files from multi season pack go to `Wanted > Missing` and select the folder you want to import and choose interactive import. You have to do this for each season.
+### Sonarr: Manual import
+To manually import files from multi season pack (or else) go to `Wanted > Missing` and select the folder you want to import and choose interactive import. You have to do this for each season.
 
-## Bazarr: Multiple languages
+### Bazarr: Multiple languages
 If you want multiple languages to be downloaded, set the cutoff to `nothing`. If it is `Any`, click on it in the drop down menu.
 
 ### Plex: Assorted settings
@@ -197,21 +190,23 @@ If you always want the best quality and not stream outside your local network, g
 In `Settings > Library` you may want to set `Video played threshold` to `95%`. For me episodes where being marked as watched, when they were not actually finished.
 
 ### Plex: Prefer Audio/Subtitle Language
-1. Go here: http://steamdeck:32400/web/index.html#!/settings/account
+1. Open http://steamdeck:32400/web/index.html#!/settings/account
 1. Then click on `Languages`.
 1. Enable `Automatically select audio and subtitle tracks`.
 1. Set `Prefer audio tracks in` to `None` (so the default is used).
 1. Set `Subtitle mode` to `Always enabled`.
 1. Set `Prefer subtitles in` to `English`.
 
-### Plex: Set audio for whole show
-In `Show Page > Edit Menu (Marker Icon) > Advanced Tab (bottom of)` set the `Preferred Audio Language & Preferred Subtitle Language`.
-
 ### Plex: Mark all as watched
 First select an item then scroll all the way down, and then shift click the select button on the last movie. This should select all items. Then mark them as watched.
 
+### Plex HTPC: Set audio for whole show
+In `Show > Edit Menu (Marker Icon) > Advanced Tab (bottom of)` set the `Preferred Audio Language & Preferred Subtitle Language`.
+
 ### Podman: Clean up container images
 Run `podman system reset`. After that images have to be re-downloaded, but your data and config will stay.
+
+However, cleaning up is not really necessary, unless you lack disk space. 
 
 ## Troubleshooting
 ### HDD
@@ -223,3 +218,10 @@ If you're getting double / wrong events with one of your controllers, you can ru
 It basically disables the native controller support in Plex HTPC, so that Steam Input can take care of it.
 
 Of course then your controller config must not contain controller inputs like the `A` button.
+
+## Explanation of Quality and Formats
+"Quality Profiles" allow you to select the quality of a movie or show you want to download. They feature "Custom Formats," which fine-tune your release selection based on specific keywords or patterns in release names.
+
+As a result, they can be used to limit downloads to specific languages. You can also specify that you want downloads to be upgraded when a better version appears.
+
+You can also set a minimum score for a release to be downloaded. Each release is scored, and only those meeting the minimum score are downloaded. A release may receive +2 for 5.1 sound and +1 for being 2160p (total 3). A movie with 2 points would be preferred over one with 1.
