@@ -44,7 +44,7 @@ rsync $DRY_RUN -avz --delete \
   --exclude='**/.cache/' \
   --exclude='OLD' \
   --exclude='nohup.out' \
-  --exclude='backup.log' \
+  --exclude='*.log' \
   --exclude="conf/recyclarr" \
   "$CONTAINER_DIR" "$BACKUP_PATH" 2>&1 | tee backup-this-folder.log
 
