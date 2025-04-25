@@ -54,10 +54,7 @@ add_path() {
 }
 
 # get the path to this script's directory
-CONTAINER_DIR="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd && echo x)"
-
-# to make it work with newlines at the end of the name
-CONTAINER_DIR="${CONTAINER_DIR%x}"
+CONTAINER_DIR="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 cd $CONTAINER_DIR
 
