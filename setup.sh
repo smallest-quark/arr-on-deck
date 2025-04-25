@@ -3,7 +3,7 @@
 chmod +x *.sh
 chmod +x *.py
 
-. ./folders.sh
+. ./init-conf-and-folders.sh
 
 if ! getent group g100999 2>&1 > /dev/null ; then
     # On the host create a group with gid 100999, and add the host user to that group.

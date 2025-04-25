@@ -1,10 +1,13 @@
 #!/bin/bash
 
-. ./ensure-permissions.sh
+. ./commons.sh
 
 CONTAINER_DIR="${CONTAINER_DIR%/}/"
 BACKUP_PATH="$(get_conf_or_ask_for "backup-path.txt" "Enter the full path to where backups will be stored")"
 BACKUP_PATH="${BACKUP_PATH%/}/"
+
+echo "We want to backup $(realpath "$CONTAINER_DIR") to $(realpath "$BACKUP_PATH")"
+
 
 PMS_PATH="$PLEX_CONF_DIR/Library/Application Support/Plex Media Server"
 

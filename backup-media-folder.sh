@@ -4,6 +4,8 @@
 SOURCE="/run/media/deck/media/data/media/"
 DESTINATION="/run/media/deck/media_backup/data/media/"
 
+echo "We want to backup $(realpath "$SOURCE") to $(realpath "$DESTINATION")"
+
 DRY_RUN=""
 if [ -t 0 ] ; then
     read -p "Do you want to perform a dry-run first? (y/N): " responses

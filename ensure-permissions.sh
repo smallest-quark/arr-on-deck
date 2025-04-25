@@ -1,7 +1,7 @@
 #!/bin/bash
 
-if [ -z "$LSIO_DIR" ]; then
-    . ./folders.sh
+if [ -z "$DATA_DIR" ]; then
+    . ./init-conf-and-folders.sh
 fi
 
 ensure_permissions() {

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-. ./folders.sh
+. ./init-conf-and-folders.sh
 
 CONFIG_FILE="$CONTAINER_DIR/copy_to_conf/recyclarr/secrets.yml"
 

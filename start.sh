@@ -1,6 +1,6 @@
 #!/bin/bash
 
-. ./folders.sh
+. ./init-conf-and-folders.sh
 
 
 PLEX_INI_FILE="$HOME/.var/app/tv.plex.PlexHTPC/data/plex/plex.ini"
