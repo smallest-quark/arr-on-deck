@@ -47,15 +47,15 @@ for ports in "${port_mapping[@]}"; do
 done
 
 TORRENTING_PORT="$(get_conf_or_ask_for "torrenting-port.txt" "Enter the forwarded port of your VPN if available. If this is setup, it will speed up torrenting and help others. Must not be $all_arr_ports or 8180" "6881")"
-
-port_mapping["qbittorrent"]="-p 8180:8180 -p $TORRENTING_PORT:$TORRENTING_PORT -p $TORRENTING_PORT:$TORRENTING_PORT/udp"
+QBT_WEBUI_API_PORT="8180"
+port_mapping["qbittorrent"]="-p $QBT_WEBUI_API_PORT:$QBT_WEBUI_API_PORT -p $TORRENTING_PORT:$TORRENTING_PORT -p $TORRENTING_PORT:$TORRENTING_PORT/udp"
 
 
 DISABLE_IPV6="--sysctl net.ipv4.conf.all.src_valid_mark=1 \
   --sysctl net.ipv6.conf.all.disable_ipv6=1 \
   --sysctl net.ipv6.conf.default.disable_ipv6=1 \
   --sysctl net.ipv6.conf.lo.disable_ipv6=1 \
-  --network slirp4netns:enable_ipv6=false"
+  --network pasta:--ipv4-only,--map-gw"
 
 
 # --share net        tells the pod that containers inside should share network namespace
@@ -105,7 +105,7 @@ fi
 # torrent
 podman run --name qbittorrent \
   $VPN_DOWNLOAD_CONTAINER_OPTS \
-  -e WEBUI_PORT=8180 \
+  -e WEBUI_PORT="$QBT_WEBUI_API_PORT" \
   -e TORRENTING_PORT="$TORRENTING_PORT" \
   $OPTIONAL_VUETORRENT_UI \
   -v "$QBITTORRENT_CONF_DIR:/config:Z" \
@@ -118,7 +118,7 @@ podman run --name qbittorrent \
 
 
 podman pod create --name arrPod --share net \
-  $DISABLE_IPV6 \
+  $DISABLE_IPV6,-T,$QBT_WEBUI_API_PORT \
   $all_arr_ports
 
 ARR_CONTAINER_OPTS="--pod arrPod \

@@ -9,6 +9,14 @@ This is a rootless media stack that uses qBittorrent to download media you put o
 
 For me, setting this up took way too much time. As a result, I created this with the hope that it will save others a lot of hassle. I also tried to make the installation as easy as possible, so almost everybody can do it.
 
+## What's New
+### 2025-05-24
+SteamOS 3.7.8 updated some libraries, which require us to make some changes.
+
+Open the terminal in inside the container directory (where `start.sh` resides) and run `git pull origin main`.
+
+Then change the URL used for qBittorrent inside Sonarr and Radarr to `localhost`.
+
 ## What does it do?
 ### Downloading
 This will take care of downloading media through a VPN automatically.
