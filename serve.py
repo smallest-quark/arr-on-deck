@@ -32,6 +32,10 @@ def has_bash_shebang(file_path):
 START_CMD = cwd / "start.sh"
 ALLOWED = [START_CMD, cwd / "stop.sh"]
 
+for i in (cwd / "cec").iterdir():
+    if i.suffix == ".sh":
+        ALLOWED.append(i)
+
 for i in (cwd / "script_customize").iterdir():
     if i.suffix == ".sh":
         ALLOWED.append(i)

@@ -1,6 +1,7 @@
  #!/bin/bash
 
 chmod +x *.sh
+chmod +x */*.sh
 chmod +x *.py
 
 . ./init-conf-and-folders.sh

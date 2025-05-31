@@ -7,11 +7,14 @@ PLEX_INI_FILE="$HOME/.var/app/tv.plex.PlexHTPC/data/plex/plex.ini"
 
 # Check if the file exists
 if [[ -f "$PLEX_INI_FILE" ]]; then
+    PLEX_WIDTH="$(get_conf_or_ask_for "plex-width.txt" "What will be the width of your target display? The default is for 4K." "3840")"
+    PLEX_HEIGHT="$(get_conf_or_ask_for "plex-height.txt" "What will be the height of your target display? The default is for 4K." "2160")"
+
     # Use sed to replace the values
-    sed -i.bak -e 's/^windowHeight=.*/windowHeight=2160/' \
-               -e 's/^windowWidth=.*/windowWidth=3840/' \
-               -e 's/^windowX=.*/windowX=0/' \
-               -e 's/^windowY=.*/windowY=0/' "$PLEX_INI_FILE"
+    sed -i.bak -e "s/^windowHeight=.*/windowHeight=${PLEX_HEIGHT}/" \
+           -e "s/^windowWidth=.*/windowWidth=${PLEX_WIDTH}/" \
+           -e 's/^windowX=.*/windowX=0/' \
+           -e 's/^windowY=.*/windowY=0/' "$PLEX_INI_FILE"
 
     echo ""
     echo "To address a Plex HTPC bug using the wrong resolution:"
@@ -77,9 +80,10 @@ MAIN_CONTAINER_OPTS="--detach \
   --pull=newer"
 
 
-# If you get IPv6 related errors in the log and connection cannot be
-# established, edit the AllowedIPs line in your peer/client wg0.conf to
-# include only 0.0.0.0/0 and not ::/0; and restart the container.
+echo "If you get IPv6 related errors in the log and connection cannot be"
+echo "established, edit the AllowedIPs line in your peer/client wg0.conf to"
+echo "include only 0.0.0.0/0 and not ::/0; and restart the container."
+
 podman run --name vpn \
   --pod vpnDownloadPod \
   $MAIN_CONTAINER_OPTS \

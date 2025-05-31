@@ -26,11 +26,9 @@ Sonarr and Radarr can follow movies and shows, so they will be downloaded whenev
 Obviously, this should only be used for legal purposes, such as downloading public domain or freely licensed media. The VPN prevents others from knowing what you are watching.
 
 ### Streaming
-It also sets up Plex as a media server, so you can watch from anywhere.
+It also sets up Plex as a media server, so (with some further setup), you could watch from anywhere.
 
 It will allow you to watch your content using Plex HTPC (a nice controller friendly UI) while inside the Deck's Gaming Mode.
-
-If you have Plex pass (a sort of Premium), it could skip intro and credits for you.
 
 ## Install
 1. Push the `Steam` button.
@@ -48,12 +46,13 @@ If you have Plex pass (a sort of Premium), it could skip intro and credits for y
 1. Download this repository.
 1. Extract it. (`Right click` on it.)
 1. Find a VPN provider that supports Wireguard (most do).
+1. Start a subscription. (The only thing that's not free here)
 1. Download a Wireguard config from the provider.
 1. Place it here: `conf/wireguard/wg0.conf` (rename if necessary)
 1. Open a terminal in the extracted folder. (Right click inside the folder and choose `Open Terminal Here`.)
 1. Run `chmod +x setup.sh`.
 1. Run `passwd` to choose an administrator password.
-1. Make sure your media hard drive is mounted. (To automatically mount it, modify `script_customize/before-start.sh`.)
+1. Make sure your media hard drive is mounted. (To automatically mount it, modify `script_customize/before-start.sh` with the correct device path. With the `KDE Partition Manager` you can format your disk as `ext4` and give it a label of your choice, to make it easy to find inside `/dev/disk/by-label/`)
 1. Then run `./setup.sh`.
 1. After that run `./start.sh`.
 1. Then follow the rest of this README file.
@@ -80,8 +79,6 @@ The number after `steamdeck:` is the port of the application.
 1. Write the name before each, so you don't mix them up.
 
 ## Importing quality profiles and custom formats
-If your setup does not support 4K (2160p), or you simply want to save space, you should comment out the lines in `copy_to_conf/recyclarr/recyclarr.yml` that contain a higher resolution then the one you want to download.
-
 Run `recyclarr-update.sh`.
 
 After that has succeeded, do the following for Radarr, if you would like to prefer the original language of movies:
@@ -94,11 +91,11 @@ After that has succeeded, do the following for Radarr, if you would like to pref
 1. In `Settings > Apps` add Radarr and Sonarr.
 1. Paste the respective API key and use these URLs:
 
-* Prowlarr Server URL is `http://host.containers.internal:9696`
-* Radarr Server URL is `http://host.containers.internal:7878`
-* Sonarr Server URL is `http://host.containers.internal:8989`
+* Prowlarr Server URL is `http://localhost:9696`
+* Radarr Server URL is `http://localhost:7878`
+* Sonarr Server URL is `http://localhost:8989`
 
-In Bazarr you have to do the same for Sonarr and Radarr. Make sure to use `host.containers.internal` as the host and the respective port in the settings.
+In Bazarr you have to do the same for Sonarr and Radarr. Make sure to use `localhost` as the host and the respective port in the settings.
 
 ## qBittorrent
 Open the WebUI and login. The user should be `admin`.
@@ -114,7 +111,7 @@ In `Settings > Tags & Categories` (or on the left panel if you're using the defa
 
 In `Settings > Advanced` look for the `Network` section and set the `Network interface` to `wg0` (wireguard).
 
-In `Settings > Bittorent` you may enable `Seeding limits` if you like, but don't choose `Remove torrent`, because Sonarr or Radarr need it to stay inside the download client. It may be removed before they have imported it. Instead, choose `Stop torrent`.
+In `Settings > Bittorent` you may enable `Seeding limits` if you like, but don't choose `Remove torrent`, as with that option, downloads may be removed before Sonarr or Radarr had a chance to import them. Instead, choose `Stop torrent`.
 
 If you chose the Vuetorrent UI during the `setup.sh` go to `Settings > WebUI`:
 1. Check `Use alternative WebUI`
@@ -134,7 +131,7 @@ Choose and enable some indexes. (Look online for popular ones.)
 1. Go to `Settings > Download clients` and click on the plus button.
 1. Look for `qBittorrent`.
 1. Click on it.
-1. Set the `Host` to `host.containers.internal` and `Port` to `8180`. Enter username and password.
+1. Set the `Host` to `localhost` and `Port` to `8180`. Enter username and password.
 1. Depending on whether this is Sonarr or Radarr, set the respective `Category` that we defined in the qBittorrent section.
 1. Press the Test button.
 1. Go to `Settings > Management` for Sonarr and Radarr.
@@ -142,13 +139,14 @@ Choose and enable some indexes. (Look online for popular ones.)
 1. In Radarr, set the Root folder to `/data/media/movie`.
 
 ### Connecting Plex
-1. Go to `Settings > Import List` click the plus button.
+1. Go to `Settings > Import List`
+1. Click the plus button.
 1. Look for `Plex Watchlist`.
 1. Click on it.
 1. Set `Quality Profile` to `Up to 4K Bluray or WEB with Anime`
 1. Check `Enable Automatic Add` and `Search for Missing Episodes`.
 1. You can choose how much you want to monitor (and thus download).
-1. Click the `authenticate` button.
+1. Click the `Authenticate` button.
 
 ## Done
 You are done. Enjoy!
@@ -157,7 +155,7 @@ You are done. Enjoy!
 ### Autostart of pods and management WebUI (optional)
 In the future to run the media stack, just run `./start.sh`.
 
-However, if you want that to happen automatically on start and have a nice webUI for executing these scripts, run `install-arr-on-deck-manager-service.sh`.
+However, if you want that to happen automatically when starting the Steam Deck and have a nice webUI for executing these scripts, run `install-arr-on-deck-manager-service.sh`.
 
 ### Deck: Stay always on
 If you want to use the Deck as an always-on media system, it is better to not allow it to sleep. (I know this is mean.)
@@ -195,7 +193,7 @@ Disable Plex-provided content here: http://steamdeck:32400/web/index.html#!/sett
 
 If you always want the best quality and not stream outside your local network, go to http://steamdeck:32400/web/index.html#!/settings/web/general and look for `Transcoder` and check `Disable video stream transcoding`.
 
-In `Settings > Library` you may want to set `Video played threshold` to `95%`. For me episodes where being marked as watched, when they were not actually finished.
+In `Settings > Library` you may want to set `Video played threshold` to `95%`. For me episodes were being marked as watched, when they were not actually finished.
 
 ### Plex: Prefer Audio/Subtitle Language
 1. Open http://steamdeck:32400/web/index.html#!/settings/account
@@ -206,7 +204,7 @@ In `Settings > Library` you may want to set `Video played threshold` to `95%`. F
 1. Set `Prefer subtitles in` to `English`.
 
 ### Plex: Mark all as watched
-First select an item then scroll all the way down, and then shift click the select button on the last movie. This should select all items. Then mark them as watched.
+First select an item then scroll all the way down, and then shift click the `select` button on the last movie. This should select all items. Then mark them as watched.
 
 ### Plex HTPC: Set audio for whole show
 In the show's page, go to `Edit Menu (Marker Icon) > Advanced Tab (bottom of)` and set the `Preferred Audio Language & Preferred Subtitle Language`.
@@ -225,7 +223,7 @@ If you're getting double / wrong events with one of your controllers, you can ru
 
 It basically disables the native controller support in Plex HTPC, so that Steam Input can take care of it.
 
-Of course then your controller config must not contain controller inputs like the `A` button.
+Of course, then your controller config (Steam Input) must not contain actual controller inputs like the `A` button.
 
 ## Explanation of Quality and Formats
 "Quality Profiles" allow you to select the quality of a movie or show you want to download. They feature "Custom Formats," which fine-tune your release selection based on specific keywords or patterns in release names.
