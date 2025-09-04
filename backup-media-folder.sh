@@ -16,7 +16,7 @@ if [ -t 0 ] ; then
 fi
 
 # Use rsync to synchronize the directories
-rsync $DRY_RUN --recursive -v --no-perms --delete "$SOURCE" "$DESTINATION" 2>&1 | tee backup-media-folder.log
+rsync $DRY_RUN --recursive -v -t --no-perms --delete "$SOURCE" "$DESTINATION" 2>&1 | tee backup-media-folder.log
 
 if [ -t 0 ] ; then
    paplay /usr/share/sounds/freedesktop/stereo/complete.oga
