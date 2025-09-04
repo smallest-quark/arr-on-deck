@@ -3,6 +3,8 @@
 # Exit immediately if a command exits with a non-zero status.
 set -e
 
+# TODO: Add CHECK ask user otherwise cause problem (sudden stopping)
+
 SERVICE_FILE="$HOME/.config/systemd/user/arr-on-deck-manager.service"
 
 systemctl --user stop arr-on-deck-manager || echo "Service arr-on-deck-manager was not running."

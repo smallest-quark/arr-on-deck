@@ -148,6 +148,8 @@ Choose and enable some indexes. (Look online for popular ones.)
 1. You can choose how much you want to monitor (and thus download).
 1. Click the `Authenticate` button.
 
+Now, when you add movies or shows to your watchlist in Plex, Sonarr and Radarr will download them for you.
+
 ## Done
 You are done. Enjoy!
 
@@ -168,6 +170,15 @@ In `Gaming Mode` do the following:
 1. Set `When plugged in, sleep after...` to `Disabled`
 
 ## How To
+### Delete media
+For both Sonarr and Radarr:
+
+1. Go to `Settings > Media Management`
+1. Scroll to `File Management`
+1. Make sure `Unmonitor Deleted Episodes/Movies` is checked
+
+Episodes deleted from disk are then automatically unmonitored in Sonarr. Same is true for Radarr. So you can just delete movies and shows via the file manager or via Plex, and they will not be re-downloaded.
+
 ### Copy existing media into the media directories
 If you copy new files in the `movie` or `show` folder, you may have to run `ensure-permissions.sh` to make sure that the container are allowed to read these files.
 
