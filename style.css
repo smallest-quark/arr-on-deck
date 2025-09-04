@@ -1,0 +1,89 @@
+ :root{
+     --gap:1rem;
+     --radius:12px;
+     --bg-light:#f6f7f8;
+     --card-light:#fff;
+     --text-light:#111;
+     --muted-light:#4b5563;
+     --accent-light:#0b84ff;
+     --bg-dark:#0b0f14;
+     --card-dark:#0f1720;
+     --text-dark:#e6eef6;
+     --muted-dark:#9aa6b2;
+     --accent-dark:#66b2ff;
+     color-scheme: light dark;
+     font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+     --page-bg:var(--bg-light);
+     --card-bg:var(--card-light);
+     --text:var(--text-light);
+     --muted:var(--muted-light);
+     --accent:var(--accent-light);
+}
+ @media (prefers-color-scheme:dark){
+     :root{
+         --page-bg:var(--bg-dark);
+         --card-bg:var(--card-dark);
+         --text:var(--text-dark);
+         --muted:var(--muted-dark);
+         --accent:var(--accent-dark);
+    }
+}
+ html,body{
+    height:100%;
+    margin:0;
+    background:var(--page-bg);
+    color:var(--text);
+}
+ .center{
+     min-height:100%;
+     display:flex;
+     align-items:center;
+     justify-content:center;
+     padding:calc(var(--gap)*2);
+     box-sizing:border-box;
+}
+ .card{
+     inline-size: fit-content;
+     max-inline-size: calc(100% - (var(--gap) * 4));
+     background:var(--card-bg);
+     padding:calc(var(--gap)*1);
+     border-radius:var(--radius);
+     box-shadow:0 8px 24px color-mix(in srgb, var(--text) 8%, transparent);
+     box-sizing:border-box;
+}
+ h1{
+    margin:0 0 0.5rem 0;
+    font-size:1.7rem;
+}
+ ul{
+    margin:0;
+    padding:0;
+    list-style:none;
+}
+ li{
+    margin:0 0 0.5rem 0;
+}
+ a{
+     display:inline-block;
+     color:var(--accent);
+     text-decoration:none;
+     padding:0.22rem 0.4rem;
+     border-radius:8px;
+     transition:background .16s, transform .12s;
+     max-inline-size:100%;
+     white-space:nowrap;
+     overflow-wrap:anywhere;
+     word-break:break-word;
+}
+ a:hover,a:focus{
+    background: color-mix(in srgb, var(--accent) 12%, transparent);
+     transform:translateY(-1px);
+     text-decoration:underline;
+     outline:none;
+}
+ @media (max-width:420px){
+     a{
+        display:block;
+         white-space:normal;
+    }
+}
