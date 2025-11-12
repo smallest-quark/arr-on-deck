@@ -22,11 +22,12 @@ from urllib.parse import urlparse, parse_qs, urlencode
 def get_path_or_none(path):
     if not path.exists():
         return None
-    c = path.read_text('utf8').strip()
+    c = path.read_text(encoding='utf8').strip().strip("\n")
     if not c:
         return None
+
     p = Path(c)
-    if not p.exists() or p.is_file():
+    if not p.exists():
         return None
     return p
 

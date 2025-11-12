@@ -7,6 +7,7 @@ BACKUP_PATH="$(get_conf_or_ask_for "backup-path.txt" "Enter the full path to whe
 BACKUP_PATH="${BACKUP_PATH%/}/"
 
 echo "We want to backup $(realpath "$CONTAINER_DIR") to $(realpath "$BACKUP_PATH")"
+echo "It is highly recommended to shutdown all containers before doing this, as otherwise databases and configs may be saved in an inconsistent state!"
 
 
 PMS_PATH="$PLEX_CONF_DIR/Library/Application Support/Plex Media Server"

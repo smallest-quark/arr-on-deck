@@ -1,0 +1,10 @@
+[Unit]
+Description=CEC Wakeup Commands
+After=suspend.target
+
+[Service]
+Type=oneshot
+ExecStart=/home/cec-commands-script.sh
+
+[Install]
+WantedBy=suspend.target

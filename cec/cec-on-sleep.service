@@ -1,0 +1,13 @@
+[Unit]
+Description=CEC Sleep Commands
+Before=sleep.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/cec-ctl -d/dev/cec0 -C
+ExecStart=/usr/bin/cec-ctl -d/dev/cec0 --playback
+ExecStart=/usr/bin/cec-ctl -d /dev/cec0 --to 0 --standby
+ExecStart=/usr/bin/cec-ctl -d /dev/cec0 -C
+
+[Install]
+WantedBy=sleep.target
