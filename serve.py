@@ -249,7 +249,7 @@ class MyRequestHandler(http.server.SimpleHTTPRequestHandler):
             super().do_GET()
             return True
         elif self.path == '/script_log':
-            c = TMP_SCRIPT_OUTPUT_PATH.read_text(encoding='utf8')
+            c = " " + TMP_SCRIPT_OUTPUT_PATH.read_text(encoding='utf8')
             self._write_html_ok(
                 log=c,
                 subtitle='Script Output',
@@ -299,7 +299,7 @@ class MyRequestHandler(http.server.SimpleHTTPRequestHandler):
         html = MAIN_HTML.replace("{subtitle}", " - " + subtitle).replace('{meta}', head)
 
         if log:
-            return remove_block(html, 'DEFAULT').replace('{log}', log)
+            return remove_block(html, 'DEFAULT').replace('{log}', log.strip())
         else:
             port = TORRENT_PORT_PATH.read_text(encoding='utf8') if TORRENT_PORT_PATH.exists() else ''
             html = remove_block(html, 'LOG').replace('{port}', port)
