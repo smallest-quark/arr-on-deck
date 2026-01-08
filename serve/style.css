@@ -242,6 +242,7 @@ main {
     border-radius: var(--radius);
     overflow: hidden;
     transition: var(--transition);
+    width: 100%;
 }
 .split-group:focus-within {
     border-color: var(--accent);
@@ -249,6 +250,7 @@ main {
 }
 .port-input {
     flex: 1;
+    min-width: 0;
     background: var(--surface);
     border: none;
     color: var(--text);
@@ -258,12 +260,16 @@ main {
     font-family: var(--font-mono);
 }
 .btn-split {
-    flex: 1.4;
+    flex: 1;
+    min-width: 0;
     border: none;
     border-radius: 0;
     font-size: var(--size-focus);
     font-weight: 700;
     border-left: 2px solid var(--border);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 .info-footer-box {
     padding: 1rem;
