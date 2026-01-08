@@ -251,3 +251,13 @@ Of course, then your controller config (Steam Input) must not contain actual con
 As a result, they can be used to limit downloads to specific languages. You can also specify that you want downloads to be upgraded when a better version appears.
 
 You can also set a minimum score for a release to be downloaded. Each release is scored, and only those meeting the minimum score are downloaded. A release may receive +2 for 5.1 sound and +1 for being 2160p (total 3). A movie with 2 points would be preferred over one with 1.
+
+## Container don't start
+Sometimes when container are stopped abruptly (I think), you might get this message (for `podman run`):
+
+```
+WARN[0000] Unmounting container "X" while attempting to delete storage: replacing mount point "/home/deck/.local/share/containers/storage/overlay/2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824/merged": directory not empty
+Error: removing storage for container "X": replacing mount point "/home/deck/.local/share/containers/storage/overlay/2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824/merged": directory not empty
+```
+
+The only fix I've found for this is to simply rename the `merged` directory.
