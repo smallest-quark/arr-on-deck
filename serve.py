@@ -14,9 +14,52 @@ import time
 import traceback
 import tempfile
 import threading
+import re
 
 from pathlib import Path
 from urllib.parse import urlparse, parse_qs, urlencode
+
+
+RUN_START_WHEN_THIS_STARTS = True
+PORT = 8000
+
+# Marker pattern templates (use format to insert the identifier name)
+_OPEN_TEMPLATE = r'<!--\s*\${name}\s*-->'
+_CLOSE_TEMPLATE = r'<!--\s*/\${name}\s*-->'
+
+def _open_pat(name: str) -> str:
+    return _OPEN_TEMPLATE.format(name=re.escape(name))
+
+def _close_pat(name: str) -> str:
+    return _CLOSE_TEMPLATE.format(name=re.escape(name))
+
+
+def get_block(text: str, name: str) -> str:
+    pattern = re.compile(_open_pat(name) + r'(.*?)' + _close_pat(name), re.DOTALL)
+    m = pattern.search(text)
+    if not m:
+        raise ValueError(f"{name} not found")
+    return m.group(1)
+
+
+def remove_block(text: str, name: str) -> str:
+    pattern = re.compile("(" + _open_pat(name) + r'.*?' + _close_pat(name) + ")", re.DOTALL)
+    return pattern.sub('', text)
+
+
+def replace_block(text: str, name: str, new_inner: str) -> str:
+    open_pat = r'(' + _open_pat(name) + r')'
+    inner_pat = r'(.*?)'
+    close_pat = r'(' + _close_pat(name) + r')'
+    pattern = re.compile(open_pat + inner_pat + close_pat, re.DOTALL)
+
+    def _sub(m: re.Match) -> str:
+        return f"{new_inner}"
+
+    new_text, count = pattern.subn(_sub, text, count=1)
+    if count == 0:
+        raise ValueError(f"{name} not found")
+    return new_text
 
 
 def get_path_or_none(path):
@@ -31,18 +74,17 @@ def get_path_or_none(path):
         return None
     return p
 
-
-PORT = 8000
-
 CWD_PATH = Path(os.path.realpath(__file__)).parent.absolute()
 os.chdir(CWD_PATH)
 
 SCRIPT_CONF_PATH = CWD_PATH / 'script_conf'
+TORRENT_PORT_PATH = SCRIPT_CONF_PATH / "torrenting-port.txt"
 DATA_PATH = get_path_or_none(SCRIPT_CONF_PATH / 'data-path.txt')
 
 
 START_CMD = CWD_PATH / "start.sh"
-ALLOWED = [START_CMD, CWD_PATH / "stop.sh"]
+STOP_CMD = CWD_PATH / "stop.sh"
+ALLOWED = [START_CMD, STOP_CMD]
 
 for i in (CWD_PATH / "cec").iterdir():
     if i.suffix == ".sh":
@@ -55,18 +97,29 @@ for i in (CWD_PATH / "script_customize").iterdir():
 
 # Creating links
 
-STEM_TO_HREF_AND_TEXT = {a.stem : (f'/script/{a.stem}', a.stem) for a in ALLOWED}
-STEM_TO_HREF_AND_TEXT['set-port'] = '/set-port/', 'set-port/{you have to add the port here}'
+STEM_TO_HREF_AND_TEXT = {a.stem : (f'/script/{a.stem}', a.stem) for a in ALLOWED if a is not START_CMD and a is not STOP_CMD}
 
-
-LINKS_HTML = "\n".join(f'<li><a href="{href}">{text}</a></li>' for (href, text) in STEM_TO_HREF_AND_TEXT.values())
-LINKS_HTML = f'<ul>{LINKS_HTML}</ul>'
+MAIN_HTML = (CWD_PATH / 'serve' / 'main.html').read_text(encoding='utf8')
 
 
 TIME_OPENED_QUERY_NAME = 'time_opened'
 
 TMP_SCRIPT_OUTPUT_FILE = tempfile.NamedTemporaryFile('w+', encoding='utf8')
 TMP_SCRIPT_OUTPUT_PATH = Path(TMP_SCRIPT_OUTPUT_FILE.name)
+
+FILES_TO_MIME_BINARY = {
+    "style.css": ("text/css", False),
+    "web-app-manifest-512x512.png": ("image/png", True),
+    "web-app-manifest-192x192.png": ("image/png", True),
+    "site.webmanifest": ("application/manifest+json", False),
+    "favicon-96x96.png": ("image/png", True),
+    "favicon.svg": ("image/svg+xml", False),
+    "favicon.ico": ("image/vnd.microsoft.icon", True),
+    "apple-touch-icon.png": ("image/png", True),
+    "material-symbols-selection.woff2": ("font/woff2", True),
+}
+
+
 
 
 ENDED_MARKER = '<!-- we are finished with this script -->'
@@ -80,8 +133,6 @@ def has_bash_shebang(file_path):
         else:
             return False
 
-def p(c):
-    return f'<p>{c}</p>'
 
 def copy_file_stepwise(src, dst, chunk_size=64*1024):
     while True:
@@ -105,28 +156,28 @@ class MyRequestHandler(http.server.SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs, directory=DATA_PATH)
 
-    def _set_header(self, resp_code, is_html=False):
+    def _set_header(self, resp_code):
         self.send_response(resp_code)
-        self.send_header("Content-type", "text/html" if is_html else "text/plain")
+        self.send_header("Content-type", "text/html")
         self.end_headers()
 
     def _write_utf8(self, text):
         self.wfile.write(str(text).encode("utf8"))
 
-    def _write_html_ok(self, text, subtitle, head=""):
-        self._set_header(200, is_html=True)
-        self._write_utf8(self.get_html(text, subtitle, head))
+    def _write_html_ok(self, subtitle, log="", head=""):
+        self._set_header(200)
+        self._write_utf8(self.get_html(log=log, subtitle=subtitle, head=head))
 
-    def _write_html_error(self, text, subtitle):
-        self._set_header(400, is_html=True)
-        self._write_utf8(self.get_html(text, subtitle))
+    def _write_html_error(self, log, subtitle):
+        self._set_header(500)
+        self._write_utf8(self.get_html(log=log, subtitle=subtitle))
 
     def _write_file(self, mime_type, path=None, binary=False):
         if path is None:
             path = self.path
 
         if isinstance(path, str):
-            path = CWD_PATH / path.removeprefix("/")
+            path = CWD_PATH / 'serve' / path.removeprefix("/")
 
         if not path.exists():
             return False
@@ -173,7 +224,7 @@ class MyRequestHandler(http.server.SimpleHTTPRequestHandler):
                 return
         except Exception as e:
             print(traceback.format_exc())
-            self._write_html_error(p(e.args[0] if e.args else ""), type(e).__name__)
+            self._write_html_error(log=e.args[0] if e.args else "", subtitle=type(e).__name__)
             return
 
         self._set_header(404)
@@ -187,7 +238,7 @@ class MyRequestHandler(http.server.SimpleHTTPRequestHandler):
 
     def handle_get(self):
         if self.path == '/':
-            self._write_html_ok(LINKS_HTML, "Home")
+            self._write_html_ok(subtitle="Home")
             return True
         elif (self.path == '/media' or self.path.startswith('/media/')):
             # we do the above, so /media_test would not be handled by this
@@ -199,26 +250,24 @@ class MyRequestHandler(http.server.SimpleHTTPRequestHandler):
             return True
         elif self.path == '/script_log':
             c = TMP_SCRIPT_OUTPUT_PATH.read_text(encoding='utf8')
-
             self._write_html_ok(
-                '<pre>' + c + '</pre>',
+                log=c,
                 subtitle='Script Output',
                 head='' if ENDED_MARKER in c else '<meta http-equiv="Refresh" content="1">'
             )
             return True
-        elif self.path == '/style.css':
-            return self._write_file('text/css')
-        elif self.path == '/favicon.ico':
-            return self._write_file('image/x-icon')
+        elif self.path.removeprefix('/') in FILES_TO_MIME_BINARY:
+            mime_type, binary = FILES_TO_MIME_BINARY[self.path.removeprefix('/')]
+            return self._write_file(mime_type, binary=binary)
         elif self.path.startswith("/set-port/"):
             port = self.path.removeprefix("/set-port/").strip()
             if port == "":
                 raise ValueError("You need to add an actual port number after the last slash in the URL.")
             else:
-                (SCRIPT_CONF_PATH / "torrenting-port.txt").write_text(port + "\n", "utf8")
+                TORRENT_PORT_PATH.write_text(port + "\n", "utf8")
                 self._write_html_ok(
-                    'The updated port will come into effect once you <a href="/script/start">restart</a>.',
-                    'Port Updated'
+                    log='The updated port will come into effect once you restart.',
+                    subtitle='Port Updated'
                 )
             return True
         elif not self._has_query_param(TIME_OPENED_QUERY_NAME):
@@ -242,36 +291,38 @@ class MyRequestHandler(http.server.SimpleHTTPRequestHandler):
 
         self._redirect_to('/script_log')
 
-    def get_html(self, content, subtitle="", head=""):
-        st = " - " + subtitle if subtitle else ""
+    def get_html(self, log="", subtitle="", head=""):
+        if not subtitle:
+            subtitle = "Arr-On-Deck Manager"
 
-        return f"""
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Arr-On-Deck Manager{st}</title>
-    <link rel="stylesheet" href="/style.css">
-    {head}
-</head>
-<body>
-    <main class="center">
-        <section class="card">
-            <h1>Arr-On-Deck Manager{st}</h1>
-{content}
-        </section>
-    </main>
-</body>
-</html>
-        """
+        # can't use format, because open braces appear in JavaScript
+        html = MAIN_HTML.replace("{subtitle}", " - " + subtitle).replace('{meta}', head)
+
+        if log:
+            return remove_block(html, 'DEFAULT').replace('{log}', log)
+        else:
+            port = TORRENT_PORT_PATH.read_text(encoding='utf8') if TORRENT_PORT_PATH.exists() else ''
+            html = remove_block(html, 'LOG').replace('{port}', port)
+            link_template = get_block(html, 'LINK')
+
+            links = []
+            for href, text in STEM_TO_HREF_AND_TEXT.values():
+                text = '<span class="material-symbols-outlined">skull</span>' + text if 'unmount' in href else text
+                classes = ' btn-danger' if 'unmount' in href else ''
+                links.append(link_template.format(href=href, text=text, classes=classes))
+
+            # replace with actual
+            return replace_block(html, 'LINK', "\n".join(links))
 
 if __name__ == '__main__':
     print(f'Scripts available: {ALLOWED}')
     time.sleep(2)
-    subprocess.Popen(START_CMD)
+
+    if RUN_START_WHEN_THIS_STARTS:
+        subprocess.Popen(START_CMD)
 
     for i in range(3):
+        socketserver.TCPServer.allow_reuse_address = True
         with socketserver.TCPServer(("", PORT), MyRequestHandler) as httpd:
             print(f"Serving on port {PORT}")
             try:

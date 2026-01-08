@@ -154,12 +154,12 @@ Now, when you add movies or shows to your watchlist in Plex, Sonarr and Radarr w
 You are done. Enjoy!
 
 ## Optional steps
-### Arr-On-Deck Manager: Autostart of pods and management WebUI (optional)
+### Install Anchor for Autostart of pods and management WebUI (optional)
 In the future to run the media stack, just run `./start.sh`.
 
 However, if you want that to happen automatically when starting the Steam Deck and have a nice webUI for executing these scripts, run `install-arr-on-deck-manager-service.sh`.
 
-You will find the Arr-On-Deck Manager here: **[http://steamdeck:8000/](http://steamdeck:8000/)**
+You will find the Anchor here: **[http://steamdeck:8000/](http://steamdeck:8000/)**
 
 With it, you can
 * stop, (re)start all containers

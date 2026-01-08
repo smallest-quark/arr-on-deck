@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {meta}
+    <link rel="stylesheet" href="style.css" />
+    <link rel="icon" type="image/png" href="favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <link rel="shortcut icon" href="favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-title" content="Anchor" />
+    <link rel="manifest" href="site.webmanifest" />
+    <title>Anchor{subtitle}</title>
+</head>
+<body>
+    <header>
+        <div class="header-main">
+            <a href="/" class="brand-link">
+                <svg class="brand-icon" viewBox="0 0 512 512">
+                    <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="44">
+                        <circle cx="256" cy="110" r="42"/>
+                        <line x1="256" x2="256" y1="152" y2="435"/>
+                        <line x1="135" x2="377" y1="235" y2="235"/>
+                        <path d="m120 305q0 105 95 105l41 38 41-38q95 0 95-105"/>
+                    </g>
+                </svg>
+                Anchor
+            </a>
+            <nav class="global-ops">
+                <div id="reachability-status">Scanning...</div>
+                <a href="/script/start" class="btn btn-primary">
+                    <span class="material-symbols-outlined">rocket_launch</span>(Re)Start All
+                </a>
+                <a href="/script/stop" class="btn">
+                    <span class="material-symbols-outlined">power_settings_new</span>Stop
+                </a>
+            </nav>
+        </div>
+        <nav class="app-bar" aria-label="Services Detected">
+            <div id="app-links"></div>
+        </nav>
+    </header>
+
+    <main>
+        <div class="content-stack">
+            <!-- Center Aligned Action Controls -->
+            <!-- $DEFAULT -->
+            <section class="action-group">
+                <div class="split-group">
+                    <input type="number" id="port-input" class="port-input" placeholder="Port #" aria-label="Port Input" value="{port}">
+                    <a href="/set-port/" id="set-port-btn" class="btn btn-split">
+                        <span class="material-symbols-outlined">settings_ethernet</span>Set Port
+                    </a>
+                </div>
+
+                <!-- $LINK -->
+                <a href="{href}" class="btn btn-large {classes}">
+                    {text}
+                </a>
+                <!-- /$LINK -->
+
+                <div class="info-footer-box">
+                    <span class="material-symbols-outlined" style="font-size:18px; margin-right:8px">folder</span>
+                    Scripts from <span class="path-highlight">scripts_customize/</span> will appear here
+                </div>
+            </section>
+            <script>
+                const apps = [
+                    { name: 'Sonarr', port: 8989, desc: 'show', icon: 'tv' },
+                    { name: 'Radarr', port: 7878, desc: 'movie', icon: 'movie' },
+                    { name: 'Prowlarr', port: 9696, desc: 'indexer', icon: 'manage_search' },
+                    { name: 'Bazarr', port: 6767, desc: 'subtitle', icon: 'subtitles' },
+                    { name: 'Overseerr', port: 5055, desc: 'request', icon: 'notifications' },
+                    { name: 'Transmission', port: 9091, desc: 'torrent', icon: 'download' },
+                    { name: 'qBittorrent', port: 8180, desc: '', icon: 'download' },
+                    { name: 'Plex', port: 32400, desc: '', icon: 'play_arrow'}
+                ];
+
+                async function probeServices() {
+                    const container = document.getElementById('app-links');
+                    const statusLabel = document.getElementById('reachability-status');
+                    const hostname = window.location.hostname || 'localhost';
+                    const protocol = window.location.protocol === 'file:' ? 'http:' : window.location.protocol;
+
+                    let onlineCount = 0;
+
+                    for (const app of apps) {
+                        const url = `${protocol}//${hostname}:${app.port}/`;
+                        try {
+                            const controller = new AbortController();
+                            const timeout = setTimeout(() => controller.abort(), 2000);
+
+                            await fetch(url, { mode: 'no-cors', signal: controller.signal });
+                            clearTimeout(timeout);
+
+                            const link = document.createElement('a');
+                            link.rel = 'noreferrer';
+                            link.target = '_blank';
+                            link.className = 'btn btn-app visible';
+                            link.href = url;
+                            let ih = `<span class="material-symbols-outlined" style="margin-right:8px; font-size:18px;">${app.icon}</span>${app.name}`;
+                            if (app.desc !== "") {
+                                ih += ` <span class="app-desc">(${app.desc})</span>`;
+                            }
+
+                            link.innerHTML = ih;
+                            container.appendChild(link);
+                            onlineCount++;
+                        } catch (e) {
+                            console.log(`Unreachable: ${app.name}`);
+                        }
+                    }
+                    statusLabel.innerHTML = `<span class="material-symbols-outlined" style="color: #4ade80">check_circle</span>${onlineCount} active`;
+                }
+
+                function initPortControl() {
+                    const input = document.getElementById('port-input');
+                    const btn = document.getElementById('set-port-btn');
+                    input.addEventListener('input', (e) => {
+                        const val = e.target.value.trim();
+                        btn.href = val ? `/set-port/${val}` : `/set-port/`;
+                    });
+                }
+
+                probeServices();
+                initPortControl();
+            </script>
+            <!-- /$DEFAULT -->
+
+            <!-- Wide Aligned Terminal Logs -->
+            <!-- $LOG -->
+            <section class="log-terminal">
+                <div class="log-header">
+                    <span><span class="material-symbols-outlined" style="margin-right:8px; font-size:18px;">terminal</span>Command Output</span>
+                </div>
+                <div class="log-content" id="log-box">
+{log}
+                </div>
+            </section>
+            <!-- /$LOG -->
+        </div>
+    </main>
+
+    <footer>
+        Made with <span class="material-symbols-outlined">favorite</span> while <span class="material-symbols-outlined">sailing</span> the high seas 😜
+    </footer>
+</body>
+</html>
