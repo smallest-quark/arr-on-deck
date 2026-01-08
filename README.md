@@ -261,3 +261,15 @@ Error: removing storage for container "X": replacing mount point "/home/deck/.lo
 ```
 
 The only fix I've found for this is to simply rename the `merged` directory.
+
+## Steam Deck - Desktop Mode: Modal Dialogs freezing (Kate, Dolphin, Konsole)
+
+I have been searching so long and tried countless things to fix this, and I still don't know what the cause is.
+
+When modal windows appear (but not file dialogs), the application would freeze and I have to kill it.
+
+**Here is the solution:**
+
+Disable all notification sounds in KDE, go to `System Settings > Hardware > Audio` and set the notification sounds volume to zero.
+
+Additionally, go to `System Settings > Notifications > System Notifications` and click on each item (where the loudspeaker symbol) is not grayed out and uncheck `Play a sound` 
