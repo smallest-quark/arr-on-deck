@@ -28,12 +28,11 @@
                 Anchor
             </a>
             <nav class="global-ops">
-                <div id="reachability-status">Scanning...</div>
                 <a href="/script/start" class="btn btn-primary">
-                    <span class="material-symbols-outlined">rocket_launch</span>(Re)Start All
+                    <span id="start-link" class="material-symbols-outlined">rocket_launch</span>Restart
                 </a>
                 <a href="/script/stop" class="btn">
-                    <span class="material-symbols-outlined">power_settings_new</span>Stop
+                    <span class="material-symbols-outlined" style="margin-right:0px">power_settings_new</span>
                 </a>
             </nav>
         </div>
@@ -69,12 +68,12 @@
                 const apps = [
                     { name: 'Sonarr', port: 8989, desc: 'show', icon: 'tv' },
                     { name: 'Radarr', port: 7878, desc: 'movie', icon: 'movie' },
-                    { name: 'Prowlarr', port: 9696, desc: 'indexer', icon: 'manage_search' },
                     { name: 'Bazarr', port: 6767, desc: 'subtitle', icon: 'subtitles' },
-                    { name: 'Overseerr', port: 5055, desc: 'request', icon: 'notifications' },
-                    { name: 'Transmission', port: 9091, desc: 'torrent', icon: 'download' },
+                    { name: 'Plex', port: 32400, desc: '', icon: 'play_arrow'},
+                    { name: 'Prowlarr', port: 9696, desc: 'indexer', icon: 'manage_search' },
+                    //{ name: 'Transmission', port: 9091, desc: 'torrent', icon: 'download' },
                     { name: 'qBittorrent', port: 8180, desc: '', icon: 'download' },
-                    { name: 'Plex', port: 32400, desc: '', icon: 'play_arrow'}
+                    //{ name: 'Overseerr', port: 5055, desc: 'request', icon: 'notifications' },
                 ];
 
                 async function probeServices() {
@@ -99,7 +98,7 @@
                             link.target = '_blank';
                             link.className = 'btn btn-app visible';
                             link.href = url;
-                            let ih = `<span class="material-symbols-outlined" style="margin-right:8px; font-size:18px;">${app.icon}</span>${app.name}`;
+                            let ih = `<span class="material-symbols-outlined" style="margin-right:8px; font-size:18px;">${app.icon}</span><span>${app.name}</span>`;
                             if (app.desc !== "") {
                                 ih += ` <span class="app-desc">(${app.desc})</span>`;
                             }
@@ -111,7 +110,14 @@
                             console.log(`Unreachable: ${app.name}`);
                         }
                     }
-                    statusLabel.innerHTML = `<span class="material-symbols-outlined" style="color: #4ade80">check_circle</span>${onlineCount} active`;
+
+                    // Change text to Start if no services reachable
+                    if (onlineCount === 0) {
+                        const icon = document.getElementById('start-link');
+                        if (icon && icon.nextSibling) {
+                            icon.nextSibling.textContent = 'Start';
+                        }
+                    }
                 }
 
                 function initPortControl() {
