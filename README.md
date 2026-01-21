@@ -168,6 +168,8 @@ With it, you can
 
 On top of that you can go to [http://steamdeck:8000/media](http://steamdeck:8000/media) to access your media files (e.g. subtitles) from any device in your home network.
 
+To restart Anchor itself, run `systemctl --user restart arr-on-deck-manager`. Note that this will also kill all containers, which might lead to problems (see the "Containers don't start" section), so better shut them down first.
+
 ### Deck: Stay always on
 If you want to use the Deck as an always-on media system, it is better to not allow it to sleep. (I know this is mean.)
 
@@ -253,23 +255,23 @@ As a result, they can be used to limit downloads to specific languages. You can 
 You can also set a minimum score for a release to be downloaded. Each release is scored, and only those meeting the minimum score are downloaded. A release may receive +2 for 5.1 sound and +1 for being 2160p (total 3). A movie with 2 points would be preferred over one with 1.
 
 ## Container don't start
-Sometimes when container are stopped abruptly (I think), you might get this message (for `podman run`):
+Sometimes when container were stopped abruptly, you might get this message (for `podman run`):
 
 ```
 WARN[0000] Unmounting container "X" while attempting to delete storage: replacing mount point "/home/deck/.local/share/containers/storage/overlay/2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824/merged": directory not empty
 Error: removing storage for container "X": replacing mount point "/home/deck/.local/share/containers/storage/overlay/2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824/merged": directory not empty
 ```
 
-The only fix I've found for this is to simply rename the `merged` directory.
+It seems the best fix for this is to simply rename the `merged` directory.
 
 ## Steam Deck - Desktop Mode: Modal Dialogs freezing (Kate, Dolphin, Konsole)
 
-I have been searching so long and tried countless things to fix this, and I still don't know what the cause is.
+This is **unrelated to this repository**, but as it affects the Steam Deck, I've added it here:
 
-When modal windows appear (but not file dialogs), the application would freeze and I have to kill it.
+When modal windows appear (but not file dialogs), the application would freeze, so it has to be killed.
 
-**Here is the solution:**
+**The solution:**
 
-Disable all notification sounds in KDE, go to `System Settings > Hardware > Audio` and set the notification sounds volume to zero.
+1. Disable all notification sounds in KDE, go to `System Settings > Hardware > Audio` and set the notification sounds volume to zero.
+2. Additionally, go to `System Settings > Notifications > System Notifications` and click on each item (where the loudspeaker symbol) is not grayed out and uncheck `Play a sound`.
 
-Additionally, go to `System Settings > Notifications > System Notifications` and click on each item (where the loudspeaker symbol) is not grayed out and uncheck `Play a sound` 

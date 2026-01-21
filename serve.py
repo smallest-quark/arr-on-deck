@@ -15,12 +15,14 @@ import traceback
 import tempfile
 import threading
 import re
+import json
 
 from pathlib import Path
 from urllib.parse import urlparse, parse_qs, urlencode
 
 
-RUN_START_WHEN_THIS_STARTS = True
+# when False, only run, when container not running yet
+ALWAYS_RUN_START_WHEN_THIS_STARTS = False
 PORT = 8000
 
 # Marker pattern templates (use format to insert the identifier name)
@@ -65,14 +67,12 @@ def replace_block(text: str, name: str, new_inner: str) -> str:
 def get_path_or_none(path):
     if not path.exists():
         return None
-    c = path.read_text(encoding='utf8').strip().strip("\n")
+    c = path.read_text(encoding='utf8').strip()
     if not c:
         return None
 
-    p = Path(c)
-    if not p.exists():
-        return None
-    return p
+    # do not check if exists here, as path might be only available later
+    return Path(c)
 
 CWD_PATH = Path(os.path.realpath(__file__)).parent.absolute()
 os.chdir(CWD_PATH)
@@ -120,9 +120,44 @@ FILES_TO_MIME_BINARY = {
 }
 
 
-
-
 ENDED_MARKER = '<!-- we are finished with this script -->'
+
+
+def is_podman_pod_running(pod_name: str) -> bool:
+    """
+    Checks if a Podman pod with the given name or ID is currently running.
+
+    Args:
+        pod_name: The name or ID of the pod to check.
+
+    Returns:
+        True if the pod is running, False otherwise.
+    """
+    try:
+        # Run the podman pod inspect command and capture the JSON output
+        # The --format is used to specifically get the State, which is more reliable
+        # than parsing the general output.
+        result = subprocess.run(
+            ['podman', 'pod', 'inspect', '--format', '{{.State}}', pod_name],
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        # The output state is a single string if the command succeeds
+        state = result.stdout.strip().lower()
+        # The state is "running" if the pod is active
+        return state == "running"
+
+    except subprocess.CalledProcessError as e:
+        # If the pod does not exist, or another error occurs, the command
+        # will return a non-zero exit code.
+        # We can also use 'podman pod exists' to check for existence first,
+        # but inspect works for both existence and status.
+        print(f"Error checking pod status: {e.stderr.strip()}")
+        return False
+    except FileNotFoundError:
+        print("Error: 'podman' command not found. Ensure Podman is installed and in your PATH.")
+        return False
 
 
 def has_bash_shebang(file_path):
@@ -242,7 +277,7 @@ class MyRequestHandler(http.server.SimpleHTTPRequestHandler):
             return True
         elif (self.path == '/media' or self.path.startswith('/media/')):
             # we do the above, so /media_test would not be handled by this
-            if DATA_PATH is None:
+            if DATA_PATH is None or not DATA_PATH.exists():
                 raise ValueError("data-path.txt does not exist or is empty - run setup.sh")
 
             self.path = self.path.removeprefix('/media')
@@ -261,12 +296,12 @@ class MyRequestHandler(http.server.SimpleHTTPRequestHandler):
             return self._write_file(mime_type, binary=binary)
         elif self.path.startswith("/set-port/"):
             port = self.path.removeprefix("/set-port/").strip()
-            if port == "":
+            if port == "" or not port.isdigit():
                 raise ValueError("You need to add an actual port number after the last slash in the URL.")
             else:
                 TORRENT_PORT_PATH.write_text(port + "\n", "utf8")
                 self._write_html_ok(
-                    log='The updated port will come into effect once you restart.',
+                    log='The updated port will come into effect once you <a href="/script/start">restart</a>.',
                     subtitle='Port Updated'
                 )
             return True
@@ -284,7 +319,14 @@ class MyRequestHandler(http.server.SimpleHTTPRequestHandler):
 
     def handle_command(self, command):
         """Execute a command and send the output as a response."""
-        process = subprocess.Popen(command, stdout=subprocess.PIPE, text=True, encoding='utf8', bufsize=1)
+        process = subprocess.Popen(
+            command,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,  # Merges stderr into the stdout pipe
+            text=True,
+            encoding='utf8',
+            bufsize=1
+        )
 
         t = threading.Thread(target=forward_stdout_to_file, args=(process, TMP_SCRIPT_OUTPUT_FILE), daemon=True)
         t.start()
@@ -318,7 +360,7 @@ if __name__ == '__main__':
     print(f'Scripts available: {ALLOWED}')
     time.sleep(2)
 
-    if RUN_START_WHEN_THIS_STARTS:
+    if ALWAYS_RUN_START_WHEN_THIS_STARTS or not is_podman_pod_running('arrPod'):
         subprocess.Popen(START_CMD)
 
     for i in range(3):
