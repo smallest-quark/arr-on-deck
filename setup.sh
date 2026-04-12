@@ -1,4 +1,4 @@
- #!/bin/bash
+ #!/usr/bin/env bash
 
 chmod +x *.sh
 chmod +x */*.sh

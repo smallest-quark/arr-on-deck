@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # 2>/dev/null        ignore errors
 # podman pod start vpnDownloadPod  # Start the pod

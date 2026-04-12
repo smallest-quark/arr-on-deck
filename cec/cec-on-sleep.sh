@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 /usr/bin/cec-ctl -C
 /usr/bin/cec-ctl --playback

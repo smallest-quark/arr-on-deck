@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 cd "$HOME/.var/app/tv.plex.PlexHTPC/data/plex/inputmaps/"
 ls *.json

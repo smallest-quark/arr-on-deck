@@ -159,16 +159,6 @@ def is_podman_pod_running(pod_name: str) -> bool:
         print("Error: 'podman' command not found. Ensure Podman is installed and in your PATH.")
         return False
 
-
-def has_bash_shebang(file_path):
-    with open(file_path, 'r') as file:
-        first_line = file.readline().strip()  # Read the first line and strip whitespace
-        if first_line == '#!/bin/bash':
-            return True
-        else:
-            return False
-
-
 def copy_file_stepwise(src, dst, chunk_size=64*1024):
     while True:
         # read up to chunk_size bytes
@@ -281,6 +271,8 @@ class MyRequestHandler(http.server.SimpleHTTPRequestHandler):
                 raise ValueError("data-path.txt does not exist or is empty - run setup.sh")
 
             self.path = self.path.removeprefix('/media')
+            if not self.path.endswith("/"):
+                self.path += '/'
             super().do_GET()
             return True
         elif self.path == '/script_log':
@@ -342,8 +334,8 @@ class MyRequestHandler(http.server.SimpleHTTPRequestHandler):
 
         if log:
             return remove_block(html, 'DEFAULT').replace('{log}', log.strip())
-        else:
-            port = TORRENT_PORT_PATH.read_text(encoding='utf8') if TORRENT_PORT_PATH.exists() else ''
+        else: # default
+            port = TORRENT_PORT_PATH.read_text(encoding='utf8').strip() if TORRENT_PORT_PATH.exists() else ''
             html = remove_block(html, 'LOG').replace('{port}', port)
             link_template = get_block(html, 'LINK')
 

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Define source and destination directories
 SOURCE="/run/media/deck/media/data/media/"

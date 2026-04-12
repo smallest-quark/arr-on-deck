@@ -1,6 +1,34 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 . ./init-conf-and-folders.sh
+
+
+
+MIN_VERSION="6.16.12"
+
+# Extracts just the numeric semantic version (e.g., 6.16.12)
+CURRENT_VERSION=$(uname -r | grep -oE '^[0-9]+\.[0-9]+\.[0-9]+')
+
+# sort -V correctly orders version numbers.
+# If MIN_VERSION remains at the top after sorting, CURRENT_VERSION is equal or newer.
+LOWEST_VERSION=$(printf "%s\n%s" "$MIN_VERSION" "$CURRENT_VERSION" | sort -V | head -n1)
+
+if [[ "$LOWEST_VERSION" == "$MIN_VERSION" ]]; then
+    echo "Kernel $CURRENT_VERSION detected (>= $MIN_VERSION). Applying storage config..."
+
+    mkdir -p ~/.config/containers
+
+    cat <<EOF > ~/.config/containers/storage.conf
+[storage]
+driver = "overlay"
+
+[storage.options.overlay]
+mount_program = "/usr/bin/fuse-overlayfs"
+EOF
+
+    # Ensure Podman picks up the newly created conf file
+    podman system reset --force
+fi
 
 
 PLEX_INI_FILE="$HOME/.var/app/tv.plex.PlexHTPC/data/plex/plex.ini"

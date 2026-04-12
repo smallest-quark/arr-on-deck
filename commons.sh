@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 log() {
     # anything that is echoed will usually be part of a functions return value
