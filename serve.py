@@ -16,6 +16,8 @@ import tempfile
 import threading
 import re
 import json
+import socket
+import socketserver
 
 from pathlib import Path
 from urllib.parse import urlparse, parse_qs, urlencode
@@ -24,6 +26,17 @@ from urllib.parse import urlparse, parse_qs, urlencode
 # when False, only run, when container not running yet
 ALWAYS_RUN_START_WHEN_THIS_STARTS = False
 PORT = 8000
+
+
+class DualStackServer(socketserver.TCPServer):
+    # This maps directly to the SO_REUSEADDR socket option
+    allow_reuse_address = True
+    address_family = socket.AF_INET6
+
+    def server_bind(self):
+        self.socket.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_V6ONLY, 0)
+        super().server_bind()
+
 
 # Marker pattern templates (use format to insert the identifier name)
 _OPEN_TEMPLATE = r'<!--\s*\${name}\s*-->'
@@ -356,8 +369,7 @@ if __name__ == '__main__':
         subprocess.Popen(START_CMD)
 
     for i in range(3):
-        socketserver.TCPServer.allow_reuse_address = True
-        with socketserver.TCPServer(("", PORT), MyRequestHandler) as httpd:
+        with DualStackServer(("::", PORT), MyRequestHandler) as httpd:
             print(f"Serving on port {PORT}")
             try:
                 httpd.serve_forever()

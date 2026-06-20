@@ -264,6 +264,31 @@ Error: removing storage for container "X": replacing mount point "/home/deck/.lo
 
 It seems the best fix for this is to simply rename the `merged` directory.
 
+---
+
+Another option that might help with overlay issues is this:
+
+Run the following commands in your terminal:
+
+```bash
+mkdir -p ~/.config/containers
+cat <<EOF > ~/.config/containers/storage.conf
+[storage]
+driver = "overlay"
+
+[storage.options.overlay]
+mount_program = "/usr/bin/fuse-overlayfs"
+EOF
+```
+
+As you just now changed the storage engine, you must wipe the broken storage state so Podman can rebuild it using the new configuration:
+
+```bash
+podman system reset
+```
+
+Type `y` to confirm.
+
 ## Steam Deck - Desktop Mode: Modal Dialogs freezing (Kate, Dolphin, Konsole)
 
 This is **unrelated to this repository**, but as it affects the Steam Deck, I've added it here:
