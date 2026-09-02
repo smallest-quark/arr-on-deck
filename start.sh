@@ -24,10 +24,8 @@ driver = "overlay"
 
 [storage.options.overlay]
 mount_program = "/usr/bin/fuse-overlayfs"
+mountopt = "nodev"
 EOF
-
-    # Ensure Podman picks up the newly created conf file
-    podman system reset --force
 fi
 
 

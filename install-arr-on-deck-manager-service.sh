@@ -12,6 +12,8 @@ SERVICE_FILE="$SERVICE_DIR/arr-on-deck-manager.service"
 mkdir -p "$SERVICE_DIR"
 
 # Create (or overwrite) the service file with the correct contents.
+# If Type= is omitted or explicitly set to simple, systemd considers the service started immediately after the main process forks off. It marks the unit as active (running) in fractions of a second. Under Type=exec, systemd considers the unit started as soon as the binary execution call succeeds.
+# TimeoutStartSec is for giving the service more time to start
 cat > "$SERVICE_FILE" <<EOF
 [Unit]
 Description=Arr-On-Deck-Manager
